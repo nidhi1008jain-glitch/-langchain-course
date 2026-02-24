@@ -2,22 +2,30 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
 from langchain.agents import create_agent
 from langchain_openai import ChatOpenAI
 from langchain_tavily import TavilySearch
 
 from schemas import AgentResponse
 
-tools = [TavilySearch()]
-llm = ChatOpenAI(model="gpt-4o")
+from langchain_ollama import ChatOllama
 
+tools = [TavilySearch()]
+# llm = ChatOpenAI(model="gpt-4")
+# llm = ChatOpenAI(model="gpt-5")
+llm = ChatOllama(
+    model="llama3.2:1b",   # or mistral, gemma, etc.
+    temperature=0
+)
+# model = ChatOpenAI(model="gpt-4")
+model = ChatOllama(model="llama3.2:1b")
 
 agent = create_agent(
-    model=llm,
+    model,
     tools=tools,
-    response_format=AgentResponse,
+    response_format=AgentResponse
 )
-
 
 def main():
     result = agent.invoke(
@@ -30,7 +38,7 @@ def main():
             ]
         }
     )
-    # Access structured response from the agent
+      # Access structured response from the agent
     structured = result.get("structured_response", None)
     print(structured if structured is not None else result)
 
